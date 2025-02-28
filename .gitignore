@@ -57,3 +57,11 @@ htmlcov/
 local_settings.py
 *.sqlite3
 *.db
+
+# Node.js
+node_modules/
+node_scripts/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

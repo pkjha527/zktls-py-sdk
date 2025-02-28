@@ -1,148 +1,103 @@
 # ZK TLS Python SDK
 
-A Python SDK for integrating Primus Labs' Zero-Knowledge TLS (ZK TLS) protocol into your applications. This SDK enables secure attestation and proxy TLS functionality, allowing applications to verify and attest to specific conditions without revealing sensitive data.
+A Python SDK wrapper for Primus Labs' Zero-Knowledge TLS (ZK TLS) protocol. This SDK provides a Python interface to the official `@primuslabs/zktls-core-sdk` Node.js package, enabling secure attestation and proxy TLS functionality.
+
+## System Requirements
+
+- Python 3.8+
+- Node.js 14+
 
 ## Overview
 
-The ZK TLS Python SDK provides a robust interface for interacting with Primus Labs' attestation infrastructure. It supports:
+The ZK TLS Python SDK provides a robust interface for interacting with Primus Labs' attestation infrastructure through the official Node.js SDK. It supports:
 
 - **Zero-Knowledge Attestations**: Create and verify attestations without exposing underlying data
 - **Proxy TLS**: Secure communication channel for attestation requests
 - **Ethereum Integration**: Sign requests using Ethereum private keys
-- **Flexible Conditions**: Define complex attestation conditions using logical operators
-- **Async Support**: Built with modern async/await patterns using aiohttp
+- **Async Support**: Built with modern async/await patterns
 - **Type Safety**: Comprehensive type hints and Pydantic models for reliable development
 
 ## Installation
 
 ```bash
+# Install Node.js package
+npm install @primuslabs/zktls-core-sdk
+
+# Install Python package
 pip install zktls-py-sdk
 ```
-
-## Requirements
-
-- Python 3.8 or higher
-- Dependencies:
-  - web3>=6.0.0
-  - eth-account
-  - eth-typing
-  - aiohttp
-  - pydantic
-  - asyncio
 
 ## Quick Start
 
 ```python
 import asyncio
-from zktls import PrimusZKTLS
-from eth_account import Account
+from zktls import NodeWrapper
 
 async def main():
-    # Initialize client
-    client = PrimusZKTLS()
+    # Initialize wrapper
+    wrapper = NodeWrapper()
+    await wrapper.init("your_app_id", "your_app_secret")
     
-    # Initialize with your app credentials
-    client.init(
-        app_id="your_app_id",  # Hex String
-        app_secret="your_app_secret"
-    )
+    # Create request
+    request = {
+        "url": "https://api.example.com",
+        "method": "GET",
+        "header": {"Authorization": "Bearer token"},
+        "body": ""
+    }
     
-    # Create an attestation request
-    result = await client.request_attestation(
-        att_template_id="template_id",
-        user_address="0x...",  # Ethereum address
-        att_conditions=[
-            [
-                {
-                    "field": "balance",
-                    "op": ">=",
-                    "value": "1000"
-                }
-            ]
-        ]
-    )
+    # Start attestation
+    attestation = await wrapper.start_attestation(request)
     
-    print(f"Attestation request created: {result.data['requestId']}")
+    # Verify attestation
+    is_valid = await wrapper.verify_attestation(attestation)
+    print(f"Attestation valid: {is_valid}")
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Features
-
-### Zero-Knowledge Attestations
-
-Create attestation requests with complex conditions while maintaining privacy:
+## Error Handling
 
 ```python
-conditions = [
-    [  # AND group
-        {"field": "age", "op": ">=", "value": "18"},
-        {"field": "country", "op": "=", "value": "US"}
-    ],
-    [  # OR group
-        {"field": "membership", "op": "=", "value": "premium"}
-    ]
-]
+from zktls import ZKAttestationError
+
+try:
+    attestation = await wrapper.start_attestation(request)
+except ZKAttestationError as e:
+    print(f"Error: {e.error_data.title} - {e.error_data.desc}")
 ```
-
-### Proxy TLS Support
-
-Secure communication channel for attestation requests with built-in TLS support:
-
-```python
-client.set_att_mode({
-    "algorithm_type": "proxytls",
-    "result_type": "plain"
-})
-```
-
-### Custom Parameters
-
-Add additional parameters to attestation requests:
-
-```python
-client.request_attestation(
-    # ... other params ...
-    addition_params={
-        "custom_field": "value",
-        "metadata": {"key": "value"}
-    }
-)
-```
-
-## Examples
-
-Check out the `examples/` directory for more detailed examples:
-
-- `basic_usage.py`: Basic SDK initialization and attestation requests
-- `proxy_tls.py`: Using proxy TLS functionality
-- `advanced_usage.py`: Advanced features and error handling
 
 ## Development
 
 ### Running Tests
 
 ```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
 pytest tests/
 ```
 
 ### Type Checking
 
-The SDK uses type hints throughout. Use mypy for type checking:
-
 ```bash
+# Run type checker
 mypy src/
+
+# Run linter
+pylint src/
 ```
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-
 
 ## Contributing
 
-Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
