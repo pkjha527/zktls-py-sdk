@@ -30,7 +30,19 @@ jobs:
     - name: Create package.json if not exists
       run: |
         if [ ! -f package.json ]; then
-          echo '{"name":"zktls-py-sdk","private":true}' > package.json
+          echo '{
+            "name": "zktls-py-sdk",
+            "version": "0.1.2",
+            "description": "Node.js dependencies for ZK TLS Python SDK",
+            "private": true,
+            "engines": {
+              "node": ">=14.0.0",
+              "npm": ">=6.0.0"
+            },
+            "dependencies": {
+              "@primuslabs/zktls-core-sdk": "^0.1.1"
+            }
+          }' > package.json
         fi
 
     - name: Install Node.js dependencies
@@ -57,6 +69,9 @@ jobs:
         ls -la node_modules/@primuslabs || true
 
     - name: Run tests with coverage
+      env:
+        PRIMUS_APP_ID: ${{ secrets.PRIMUS_APP_ID }}
+        PRIMUS_APP_SECRET: ${{ secrets.PRIMUS_APP_SECRET }}
       run: |
         # Run with verbose flag and show output
         pytest -v --cov=zktls tests/ --cov-report=xml
