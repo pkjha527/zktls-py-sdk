@@ -47,17 +47,13 @@ jobs:
 
     - name: Install Node.js dependencies
       run: |
+        # Install SDK globally to ensure it's accessible
+        npm install -g @primuslabs/zktls-core-sdk
+        # Also install locally for the package
         npm install @primuslabs/zktls-core-sdk
+        # Verify SDK installation
+        node -e "const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); console.log('SDK loaded successfully')"
         npm list || true  # Show installed packages, don't fail if there are peer dependency warnings
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        # Install test dependencies first
-        pip install pytest pytest-asyncio pytest-cov
-        # Install package in editable mode with dev dependencies
-        pip install -e ".[dev]"
-        pip list  # Show installed packages for debugging
 
     - name: Show environment info
       run: |
@@ -67,6 +63,17 @@ jobs:
         pwd
         ls -la
         ls -la node_modules/@primuslabs || true
+        # Verify SDK is accessible from both global and local installations
+        node -e "const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); console.log('SDK loaded successfully')"
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Install test dependencies first
+        pip install pytest pytest-asyncio pytest-cov
+        # Install package in editable mode with dev dependencies
+        pip install -e ".[dev]"
+        pip list  # Show installed packages for debugging
 
     - name: Run tests with coverage
       env:
