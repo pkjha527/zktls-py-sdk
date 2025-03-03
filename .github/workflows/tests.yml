@@ -52,7 +52,7 @@ jobs:
         # Also install locally for the package
         npm install @primuslabs/zktls-core-sdk
         # Verify SDK installation with required flags
-        node --experimental-wasm-threads --experimental-wasm-bulk-memory -e "const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); console.log('SDK loaded successfully')"
+        node --experimental-wasm-threads -e "const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); console.log('SDK loaded successfully')"
         npm list || true  # Show installed packages, don't fail if there are peer dependency warnings
 
     - name: Show environment info
