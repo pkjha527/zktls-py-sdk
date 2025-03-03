@@ -178,7 +178,7 @@ process.stdin.on('data', async (data) => {
             try:
                 script_dir = os.path.join(os.getcwd(), "node_scripts")
                 self.node_process = subprocess.Popen(
-                    ["node", os.path.join(script_dir, "wrapper.js")],
+                    ["node", "--experimental-wasm-threads", "--experimental-wasm-bulk-memory", os.path.join(script_dir, "wrapper.js")],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
@@ -333,4 +333,3 @@ process.stdin.on('data', async (data) => {
         if self.node_process:
             self.node_process.terminate()
             self.node_process = None
-    

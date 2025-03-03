@@ -51,8 +51,8 @@ jobs:
         npm install -g @primuslabs/zktls-core-sdk
         # Also install locally for the package
         npm install @primuslabs/zktls-core-sdk
-        # Verify SDK installation
-        node -e "const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); console.log('SDK loaded successfully')"
+        # Verify SDK installation with required flags
+        node --experimental-wasm-threads --experimental-wasm-bulk-memory -e "const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); console.log('SDK loaded successfully')"
         npm list || true  # Show installed packages, don't fail if there are peer dependency warnings
 
     - name: Show environment info
@@ -63,8 +63,8 @@ jobs:
         pwd
         ls -la
         ls -la node_modules/@primuslabs || true
-        # Verify SDK is accessible from both global and local installations
-        node -e "const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); console.log('SDK loaded successfully')"
+        # Verify SDK is accessible with required flags
+        node --experimental-wasm-threads --experimental-wasm-bulk-memory -e "const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); console.log('SDK loaded successfully')"
 
     - name: Install Python dependencies
       run: |
@@ -79,6 +79,7 @@ jobs:
       env:
         PRIMUS_APP_ID: ${{ secrets.PRIMUS_APP_ID }}
         PRIMUS_APP_SECRET: ${{ secrets.PRIMUS_APP_SECRET }}
+        NODE_OPTIONS: "--experimental-wasm-threads --experimental-wasm-bulk-memory"
       run: |
         # Run with verbose flag and show output
         pytest -v --cov=zktls tests/ --cov-report=xml
