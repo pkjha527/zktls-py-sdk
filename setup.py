@@ -69,12 +69,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="zktls-py-sdk",
     version="0.1.0",
-    author="Primus Labs",
-    author_email="info@primuslabs.xyz",
+    author="Praveen Kumar Jha",
+    author_email="praveen@gamp.gg",
     description="Python SDK wrapper for ZK TLS attestation service",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/primuslabs/zktls-py-sdk",
+    url="https://github.com/pkjha527/zktls-py-sdk",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     classifiers=[
