@@ -8,6 +8,10 @@
 
 A Python SDK wrapper for Primus Labs' Zero-Knowledge TLS (ZK TLS) protocol. This SDK provides a Python interface to the official `@primuslabs/zktls-core-sdk` Node.js package, enabling secure attestation and proxy TLS functionality.
 
+## Related SDKs
+
+This Python SDK is built upon the official JavaScript SDK: [@primuslabs/zktls-core-sdk](https://github.com/primus-labs/zktls-js-sdk). For JavaScript or Node.js-based use cases, you can use the core SDK directly to leverage the same ZK TLS protocol capabilities.
+
 ## Features
 
 - **✨ Zero-Knowledge Attestations**: Create and verify attestations without exposing underlying data
