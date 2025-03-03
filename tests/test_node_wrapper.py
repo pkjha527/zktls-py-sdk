@@ -47,10 +47,23 @@ async def wrapper():
 @pytest.mark.asyncio
 async def test_initialization():
     """Test NodeWrapper initialization."""
-    wrapper = NodeWrapper()
-    assert wrapper.node_process is None
-    assert wrapper.app_id is None
-    assert wrapper.app_secret is None
+    with patch("zktls.checks.check_node_version") as mock_node_check, \
+         patch("zktls.checks.check_npm_version") as mock_npm_check, \
+         patch("zktls.checks.check_sdk_installation") as mock_sdk_check, \
+         patch("zktls.checks.check_runtime_environment") as mock_runtime_check, \
+         patch("zktls.node_wrapper.NodeWrapper._setup_node_environment") as mock_setup:
+        
+        # Mock all checks to return success
+        mock_node_check.return_value = (True, "")
+        mock_npm_check.return_value = (True, "")
+        mock_sdk_check.return_value = (True, "")
+        mock_runtime_check.return_value = None
+        mock_setup.return_value = None
+        
+        wrapper = NodeWrapper()
+        assert wrapper.node_process is None
+        assert wrapper.app_id is None
+        assert wrapper.app_secret is None
 
 @pytest.mark.asyncio
 async def test_init_success(wrapper):

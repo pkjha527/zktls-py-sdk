@@ -178,7 +178,7 @@ process.stdin.on('data', async (data) => {
             try:
                 script_dir = os.path.join(os.getcwd(), "node_scripts")
                 self.node_process = subprocess.Popen(
-                    ["node", "--experimental-wasm-threads", "--experimental-wasm-bulk-memory", os.path.join(script_dir, "wrapper.js")],
+                    ["node", "--experimental-wasm-threads", os.path.join(script_dir, "wrapper.js")],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
@@ -199,10 +199,8 @@ process.stdin.on('data', async (data) => {
                     
             except Exception as e:
                 stderr = ""
-                if self.node_process:
+                if self.node_process and self.node_process.stderr:
                     stderr = self.node_process.stderr.read()
-                    self.node_process.terminate()
-                    self.node_process = None
                 raise RuntimeError(f"Failed to start Node.js process: {str(e)}\nstderr: {stderr}")
             
     async def _send_command(self, method: str, params: Dict[str, Any], skip_start: bool = False) -> Any:

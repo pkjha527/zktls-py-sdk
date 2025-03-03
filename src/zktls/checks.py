@@ -44,18 +44,44 @@ def check_npm_version() -> Tuple[bool, str]:
 def check_sdk_installation() -> Tuple[bool, str]:
     """Check if @primuslabs/zktls-core-sdk is installed"""
     try:
-        # Try to require the SDK
+        # Try to require the SDK with basic initialization test
+        script = """
+try {
+    console.log('Loading SDK...');
+    const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk');
+    
+    // Test basic SDK instantiation without initialization
+    const sdk = new PrimusCoreTLS();
+    console.log('SDK instantiated successfully');
+    
+    // Exit immediately after basic test
+    process.exit(0);
+} catch(e) {
+    console.error('SDK Error:', e);
+    process.exit(1);
+}
+
+// Force exit after 1 second in case SDK has hanging promises
+setTimeout(() => {
+    console.error('SDK check timed out');
+    process.exit(1);
+}, 1000);
+"""
         result = subprocess.run(
-            ["node", "-e", "try { const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); process.exit(0); } catch(e) { console.error(e); process.exit(1); }"],
+            ["node", "-e", script],
             cwd=os.getcwd(),
             capture_output=True,
-            text=True
+            text=True,
+            timeout=5  # Reduced timeout since we have an internal timeout
         )
         
         if result.returncode != 0:
-            return False, "Node.js SDK is not installed correctly"
+            error_msg = result.stderr.strip() if result.stderr else "Unknown error"
+            return False, f"Node.js SDK is not installed correctly: {error_msg}"
             
-        return True, "ZK TLS SDK found"
+        return True, "ZK TLS SDK found and basic instantiation successful"
+    except subprocess.TimeoutExpired:
+        return False, "SDK check timed out - this may indicate an issue with the SDK initialization"
     except Exception as e:
         return False, str(e)
 
