@@ -9,58 +9,59 @@ class InstallationError(Exception):
     """Raised when installation requirements are not met"""
     pass
 
-def check_node_version() -> Tuple[bool, Optional[str]]:
-    """Check if Node.js is installed and meets version requirements"""
+def check_node_version() -> Tuple[bool, str]:
+    """Check if Node.js is installed and version >= 14"""
     try:
-        result = subprocess.run(
-            ["node", "--version"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        version = result.stdout.strip().lstrip('v')
-        major_version = int(version.split('.')[0])
-        if major_version < 14:
-            return False, f"Node.js version {version} is too old. Version 14+ is required."
-        return True, version
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False, "Node.js is not installed"
+        result = subprocess.run(["node", "--version"], capture_output=True, text=True)
+        if result.returncode != 0:
+            return False, "Node.js not found"
+        
+        version = result.stdout.strip().lstrip("v").split(".")
+        major = int(version[0])
+        if major < 14:
+            return False, f"Node.js version {result.stdout.strip()} is too old (need >= 14)"
+            
+        return True, f"Node.js {result.stdout.strip()} found"
+    except Exception as e:
+        return False, str(e)
 
-def check_npm_version() -> Tuple[bool, Optional[str]]:
-    """Check if npm is installed and meets version requirements"""
+def check_npm_version() -> Tuple[bool, str]:
+    """Check if npm is installed and version >= 6"""
     try:
-        result = subprocess.run(
-            ["npm", "--version"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        version = result.stdout.strip()
-        major_version = int(version.split('.')[0])
-        if major_version < 6:
-            return False, f"npm version {version} is too old. Version 6+ is required."
-        return True, version
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False, "npm is not installed"
+        result = subprocess.run(["npm", "--version"], capture_output=True, text=True)
+        if result.returncode != 0:
+            return False, "npm not found"
+        
+        version = result.stdout.strip().split(".")
+        major = int(version[0])
+        if major < 6:
+            return False, f"npm version {result.stdout.strip()} is too old (need >= 6)"
+            
+        return True, f"npm {result.stdout.strip()} found"
+    except Exception as e:
+        return False, str(e)
 
-def check_sdk_installation() -> Tuple[bool, Optional[str]]:
+def check_sdk_installation() -> Tuple[bool, str]:
     """Check if @primuslabs/zktls-core-sdk is installed"""
     try:
-        # Try to require the SDK to check installation
+        # Try to require the SDK
         result = subprocess.run(
-            ["node", "-e", "require('@primuslabs/zktls-core-sdk')"],
+            ["node", "-e", "try { const { PrimusCoreTLS } = require('@primuslabs/zktls-core-sdk'); process.exit(0); } catch(e) { console.error(e); process.exit(1); }"],
+            cwd=os.getcwd(),
             capture_output=True,
             text=True
         )
+        
         if result.returncode != 0:
             return False, "Node.js SDK is not installed correctly"
-        return True, None
-    except subprocess.CalledProcessError:
-        return False, "Failed to check Node.js SDK installation"
+            
+        return True, "ZK TLS SDK found"
+    except Exception as e:
+        return False, str(e)
 
 def check_node_scripts() -> Tuple[bool, Optional[str]]:
     """Check if Node.js wrapper scripts are present"""
-    script_path = os.path.join("node_scripts", "wrapper.js")
+    script_path = os.path.join(os.getcwd(), "node_scripts", "wrapper.js")
     if not os.path.exists(script_path):
         return False, "Node.js wrapper script is missing"
     return True, None
@@ -91,16 +92,16 @@ def verify_installation() -> None:
             "Please run: npm install @primuslabs/zktls-core-sdk"
         )
 
-    # Check wrapper scripts
+def check_runtime_environment() -> None:
+    """Check runtime environment before executing commands"""
+    # Check wrapper scripts first
     scripts_ok, scripts_msg = check_node_scripts()
     if not scripts_ok:
         raise InstallationError(
             f"Wrapper script check failed: {scripts_msg}\n"
             "Please reinstall the package"
         )
-
-def check_runtime_environment() -> None:
-    """Check runtime environment before executing commands"""
+        
     # Verify Node.js process can be started
     try:
         process = subprocess.Popen(
