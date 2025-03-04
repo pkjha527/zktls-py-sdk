@@ -12,10 +12,31 @@ import asyncio
 from unittest.mock import Mock, patch, MagicMock
 from zktls.node_wrapper import NodeWrapper
 from zktls.checks import InstallationError
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if it exists
+env_path = Path('.env')
+if env_path.exists():
+    load_dotenv(env_path)
+
+# Function to get env from .env or os environment variables
+def get_env(key, default=None):
+    """
+    Get environment variable from .env file or OS environment.
+    
+    Args:
+        key: Environment variable key
+        default: Default value if key not found
+        
+    Returns:
+        str: Environment variable value or default
+    """
+    return os.environ.get(key, default)
 
 # Test constants
-TEST_APP_ID = os.environ.get('PRIMUS_APP_ID')
-TEST_APP_SECRET = os.environ.get('PRIMUS_APP_SECRET')
+TEST_APP_ID = get_env('PRIMUS_APP_ID')
+TEST_APP_SECRET = get_env('PRIMUS_APP_SECRET')
 TEST_URL = "https://catfact.ninja/fact"
 
 def create_mock_process(extra_responses=None):
