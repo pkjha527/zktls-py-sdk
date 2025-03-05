@@ -22,10 +22,10 @@ pip install zktls-py-sdk
 ```
 
 ### Prerequisites
-
-- Python 3.8+
+The SDK depends on the following:
 - Node.js 14+
 - npm 6+
+- `@primuslabs/zktls-core-sdk` package version ^0.1.1
 
 The SDK will automatically check for these dependencies during initialization.
 
